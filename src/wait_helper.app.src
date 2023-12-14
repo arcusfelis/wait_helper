@@ -1,0 +1,5 @@
+{application, wait_helper,
+ [{description, "Functions to wait for some condition in tests"},
+  {vsn, git},
+  {applications, [stdlib, kernel]}
+ ]}.
