@@ -1,5 +1,9 @@
 {application, wait_helper,
  [{description, "Functions to wait for some condition in tests"},
   {vsn, git},
-  {applications, [stdlib, kernel]}
+  {applications, [stdlib, kernel]},
+  {doc, "doc"},
+  {modules, []},
+  {licenses, ["Apache 2.0"]},
+  {links, [{"GitHub", "https://github.com/arcusfelis/wait_helper/"}]}
  ]}.

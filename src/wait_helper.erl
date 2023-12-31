@@ -3,15 +3,19 @@
 
 %% From mongoose_helper
 
-%% @doc Waits `TimeLeft` for `Fun` to return `ExpectedValue`
-%% If the result of `Fun` matches `ExpectedValue`, returns {ok, ExpectedValue}
-%% If no value is returned or the result doesn't match `ExpectedValue`, returns one of the following:
-%% {Name, History}, if Opts as #{name => Name} is passed
-%% {timeout, History}, otherwise
-
+%% @see wait_until/3
 wait_until(Fun, ExpectedValue) ->
     wait_until(Fun, ExpectedValue, #{}).
 
+%% @doc Waits `TimeLeft' for `Fun' to return `ExpectedValue'
+%%
+%% If the result of `Fun' matches `ExpectedValue', returns `{ok, ExpectedValue}'
+%%
+%% If no value is returned or the result doesn't match `ExpectedValue',
+%% returns one of the following:
+%% <li>`{Name, History}', if `#{name => Name}' is is passed in the `Opts'</li>
+%% <li>`{timeout, History}' otherwise</li>
+%%
 %% Example: wait_until(fun () -> ... end, SomeVal, #{time_left => timer:seconds(2)})
 wait_until(Fun, ExpectedValue, Opts) ->
     Defaults = #{
