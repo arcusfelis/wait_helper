@@ -41,7 +41,7 @@ do_wait_until(
         name := Name
     }
 ) when TimeLeft =< 0 ->
-    Return = {Name, ExpectedValue, simplify_history(lists:reverse(History), 1), OnError()};
+    Return = {Name, ExpectedValue, lists:reverse(History), OnError()},
     case NoThrow of
         true ->
             {error, Return};
@@ -60,13 +60,6 @@ do_wait_until(Fun, #{validator := Validator} = Opts) ->
             wait_and_continue(Fun, {Error, Reason, Stacktrace}, Opts)
     end.
 
-simplify_history([H | [H | _] = T], Times) ->
-    simplify_history(T, Times + 1);
-simplify_history([H | T], Times) ->
-    [{times, Times, H} | simplify_history(T, 1)];
-simplify_history([], 1) ->
-    [].
-
 wait_and_continue(
     Fun,
     FunResult,
@@ -76,8 +69,14 @@ wait_and_continue(
         history := History
     } = Opts
 ) ->
+    NewHistory = case History of
+        [{times, Times, FunResult} | T] ->
+            [{times, Times + 1, FunResult} | T];
+        _ ->
+            [{times, 1, FunResult} | History]
+    end,
     timer:sleep(SleepTime),
     do_wait_until(Fun, Opts#{
         time_left => TimeLeft - SleepTime,
-        history => [FunResult | History]
+        history => NewHistory
     }).
