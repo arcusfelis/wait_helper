@@ -20,6 +20,8 @@ wait_until(Fun, ExpectedValue) ->
 wait_until(Fun, ExpectedValue, Opts) ->
     Defaults = #{
         validator => fun(NewValue) -> ExpectedValue =:= NewValue end,
+        on_error => fun() -> undefined end,
+        no_throw => false,
         expected_value => ExpectedValue,
         time_left => timer:seconds(5),
         sleep_time => 100,
@@ -34,10 +36,18 @@ do_wait_until(
         expected_value := ExpectedValue,
         time_left := TimeLeft,
         history := History,
+        on_error := OnError,
+        no_throw := NoThrow,
         name := Name
-    } = Opts
+    }
 ) when TimeLeft =< 0 ->
-    error({Name, ExpectedValue, simplify_history(lists:reverse(History), 1), on_error(Opts)});
+    Return = {Name, ExpectedValue, simplify_history(lists:reverse(History), 1), OnError()};
+    case NoThrow of
+        true ->
+            {error, Return};
+        false ->
+            error(Return)
+    end;
 do_wait_until(Fun, #{validator := Validator} = Opts) ->
     try Fun() of
         Value ->
@@ -49,11 +59,6 @@ do_wait_until(Fun, #{validator := Validator} = Opts) ->
         Error:Reason:Stacktrace ->
             wait_and_continue(Fun, {Error, Reason, Stacktrace}, Opts)
     end.
-
-on_error(#{on_error := F}) ->
-    F();
-on_error(_Opts) ->
-    ok.
 
 simplify_history([H | [H | _] = T], Times) ->
     simplify_history(T, Times + 1);
